@@ -82,7 +82,7 @@ public class UrlController {
                 .build();
 
         Url savedUrl = urlRepository.save(url);
-        savedUrl.setShortUrl(baseUrl + "/" + savedUrl.getShortCode());
+        savedUrl.setShortUrl(baseUrl.trim() + "/" + savedUrl.getShortCode());
         return ResponseEntity.ok(savedUrl);
     }
 
@@ -121,7 +121,7 @@ public class UrlController {
         }
 
         Url url = urlOptional.get();
-        url.setShortUrl(baseUrl + "/" + url.getShortCode());
+        url.setShortUrl(baseUrl.trim() + "/" + url.getShortCode());
         long totalClicks = clickRepository.countByUrlId(url.getId());
         List<Click> recentClicks = clickRepository.findTop100ByUrlIdOrderByClickedAtDesc(url.getId());
 
