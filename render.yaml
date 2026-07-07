@@ -1,7 +1,7 @@
 services:
   # Spring Boot Web Service (main app)
   - type: web
-    name: urly
+    name: urllink-app
     runtime: docker
     dockerfilePath: ./Dockerfile
     plan: free
@@ -13,7 +13,7 @@ services:
 
   # Python Metadata Worker (background)
   - type: worker
-    name: urly-worker
+    name: urllink-worker
     runtime: docker
     dockerfilePath: ./Dockerfile.worker
     plan: free
