@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urly — Premium URL Shortener</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for premium analytics graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <span class="logo-icon"><i class="fa-solid fa-link"></i></span>
+                <h1>Urly</h1>
+            </div>
+            <p class="tagline">Shorten, analyze, and optimize your links with rich metadata previews</p>
+        </header>
+
+        <!-- Main Form Card -->
+        <main class="main-card">
+            <form id="shorten-form" class="shorten-form">
+                <div class="input-group">
+                    <label for="long-url">Destination URL</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fa-solid fa-globe"></i></span>
+                        <input type="url" id="long-url" placeholder="https://example.com/very/long/path/to/some/awesome/content" required>
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="custom-code">Custom Alias <span class="optional">(Optional)</span></label>
+                        <div class="input-wrapper">
+                            <span class="input-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                            <input type="text" id="custom-code" placeholder="my-awesome-alias" pattern="^[a-zA-Z0-9_-]+$" title="Only letters, numbers, hyphens, and underscores allowed">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn">
+                    <span class="btn-text">Shorten Link</span>
+                    <span class="btn-icon"><i class="fa-solid fa-arrow-right"></i></span>
+                </button>
+            </form>
+        </main>
+
+        <!-- Dynamic Result Card -->
+        <div id="result-card" class="result-card hidden">
+            <div class="result-header">
+                <h3><i class="fa-solid fa-circle-check text-success"></i> Your short URL is ready!</h3>
+                <button id="close-result" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="url-output-section">
+                <div class="url-display" id="short-url-display">https://ur.ly/xyz123</div>
+                <button id="copy-btn" class="action-btn copy-btn" title="Copy to clipboard">
+                    <i class="fa-regular fa-copy"></i> Copy
+                </button>
+            </div>
+
+            <!-- Double-sided Panel: Metadata Preview & QR Code -->
+            <div class="result-details-grid">
+                <!-- Site Preview Card -->
+                <div class="preview-container">
+                    <span class="card-label">Dynamic Site Preview</span>
+                    <div id="preview-loader" class="preview-loader hidden">
+                        <div class="spinner"></div>
+                        <p>Generating preview metadata...</p>
+                    </div>
+                    <div id="preview-card" class="preview-card">
+                        <div class="preview-header">
+                            <img id="preview-favicon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='16' height='16' fill='%236366f1'/></svg>" alt="favicon" class="preview-favicon">
+                            <span id="preview-domain" class="preview-domain">example.com</span>
+                        </div>
+                        <h4 id="preview-title" class="preview-title">Site Title</h4>
+                        <p id="preview-desc" class="preview-desc">Site description will load asynchronously here. The background worker is fetching tags...</p>
+                    </div>
+                </div>
+
+                <!-- QR Code Card -->
+                <div class="qr-container">
+                    <span class="card-label">Quick Scan QR</span>
+                    <div class="qr-wrapper">
+                        <img id="qr-code-img" src="" alt="Short link QR code">
+                    </div>
+                    <a id="download-qr" href="" download="qr-code.png" class="qr-download-link"><i class="fa-solid fa-download"></i> Download QR</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Dashboard -->
+        <section class="dashboard-section">
+            <div class="section-header">
+                <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Links</h2>
+                <button id="clear-history-btn" class="clear-btn"><i class="fa-solid fa-trash-can"></i> Clear History</button>
+            </div>
+            
+            <div id="empty-history" class="empty-state">
+                <i class="fa-solid fa-link-slash"></i>
+                <p>No links shortened yet. Paste a link above to get started!</p>
+            </div>
+
+            <div id="history-list" class="history-list">
+                <!-- Dynamic links will insert here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Details/Stats Sliding Modal -->
+    <div id="stats-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title-wrapper">
+                    <h2><i class="fa-solid fa-chart-line text-primary"></i> Link Analytics</h2>
+                    <p id="modal-short-url" class="modal-sub">https://ur.ly/xyz123</p>
+                </div>
+                <button id="close-modal" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Info cards row -->
+                <div class="info-cards-row">
+                    <div class="info-card">
+                        <span class="info-card-title">Total Clicks</span>
+                        <span id="stat-total-clicks" class="info-card-value">0</span>
+                    </div>
+                    <div class="info-card original-url-card">
+                        <span class="info-card-title">Original Destination</span>
+                        <a id="stat-original-url" href="#" target="_blank" class="info-card-link">https://example.com/very-long-url-goes-here</a>
+                    </div>
+                </div>
+
+                <!-- Site Metadata Card -->
+                <div class="modal-section">
+                    <h3>Metadata Preview</h3>
+                    <div class="preview-card modal-preview-card">
+                        <div class="preview-header">
+                            <img id="modal-favicon" src="" alt="favicon" class="preview-favicon">
+                            <span id="modal-domain" class="preview-domain">domain.com</span>
+                        </div>
+                        <h4 id="modal-title" class="preview-title">Title</h4>
+                        <p id="modal-desc" class="preview-desc">Description</p>
+                    </div>
+                </div>
+
+                <!-- Analytics Graph -->
+                <div class="modal-section">
+                    <h3>Clicks Timeline</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="clicks-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Clicks list -->
+                <div class="modal-section">
+                    <h3>Recent Clicks Log (Last 100)</h3>
+                    <div class="clicks-log-container">
+                        <table class="clicks-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>IP Address</th>
+                                    <th>User Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clicks-log-tbody">
+                                <!-- Dynamic rows insert here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <i class="fa-solid fa-circle-info"></i> <span id="toast-text">Copied to clipboard!</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
