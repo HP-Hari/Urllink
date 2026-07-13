@@ -1,4 +1,4 @@
-# Urly — Premium URL Shortener & Analytics
+# Urllink — Premium URL Shortener & Analytics
 
 Urly is a modern, high-performance, and feature-rich URL shortener. It includes dynamic web scraping for link previews, detailed real-time click analytics with interactive charts, QR code generation, and a gorgeous glassmorphism UI.
 
